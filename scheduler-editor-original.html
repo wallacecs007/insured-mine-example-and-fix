@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="h-full bg-white" lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nylas Scheduler Editor Component</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script type="module" src="https://unpkg.com/@nylas/web-elements@latest"></script>
+    <script type="module" src="https://unpkg.com/@nylas/identity@latest"></script> -->
+
+
+    <style type="text/css">
+        body {
+            font-family: "Inter", sans-serif;
+        }
+
+        nylas-scheduler-editor::part(nse__header) {
+            display: none !important;
+        }
+        nylas-scheduler-editor::part(nse__list-configurations) {
+            padding: 10px !important;
+        }
+        nylas-scheduler-editor::part(editor__footer-preview net__footer-preview) {
+            display: none !important;
+        }
+        nylas-scheduler-editor::part(editor__footer net__footer) {
+            justify-content: end !important;
+        }
+        
+        nylas-scheduler-editor{
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body class="h-full">
+    <div class="grid h-full place-items-center">
+        <!-- Add the Nylas Scheduler Editor component -->
+        <nylas-scheduler-editor />
+    </div>
+
+    <!-- Configure the Nylas Scheduler Editor component -->
+    <script type="module">
+       import { defineCustomElement } from "https://cdn.jsdelivr.net/npm/@nylas/web-elements@latest/dist/cdn/nylas-scheduler-editor/nylas-scheduler-editor.es.js";
+       defineCustomElement();
+       let token
+       let agentId
+    class CustomIdentityRequestWrapperProxy {
+    constructor(config) {
+        this.grantId = config.grantId;
+        this.email = config.email;
+        this.domain = config.domain;
+        this.provider = config.provider;
+    }
+
+    async request(args) {
+        try {
+            console.log('Request args:', args);
+            console.log('Request args.body:', args.body);
+            console.log('Request args.headers:', args.headers);
+
+            const response = await fetch("ALL REFERENCES REMOVED FOR SECURITY PURPOSES", {
+                method: "POST",
+                headers: {
+                    ...args.headers,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    payload: args.body,
+                    path: args.path,
+                    grantId: this.grantId,
+                    method: args.method,
+                }),
+               
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                const { error } = data;
+                return [
+                    null,
+                    {
+                        type: error?.type,
+                        message: error?.message,
+                        code: response.status,
+                        provider_error: data.error?.provider_error,
+                    },
+                ];
+            }
+            return [data, null];
+        } catch (error) {
+            console.error("Fetch error:", error);
+            return [{ error: "Error" }];
+        }
+    }
+
+    async currentUser() {
+        return {
+            id: this.grantId,
+            email: this.email,
+            provider: this.provider,
+        };
+    }
+
+    async setDefaultAuthArgs(authArgs) {
+        return authArgs;
+    }
+
+    async authenticationUrl() {
+        return 'https://example.com/auth';
+    }
+}
+function getToken(){
+            const queryString = window.location.search;
+            const params = new URLSearchParams(queryString);
+            const token = params.get('token');
+            console.log('Token:', token);
+            return token
+        }
+function getAgentid(){
+    const queryString = window.location.search;
+            const params = new URLSearchParams(queryString);
+            const agentId = params.get('agentId');
+            console.log('agentId:', agentId);
+            return agentId
+        }
+async function parentData(){
+    try {
+        
+        const response = await fetch("ALL REFERENCES REMOVED FOR SECURITY PURPOSES", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'bearer ' + token
+                }
+            })
+            const data = await response.json();
+            console.log("agent DATA on api call",data);
+            
+            if (!response.ok) {
+                const { error } = data;
+                return [
+                    null,
+                    {
+                        type: error?.type,
+                        message: error?.message,
+                        code: response.status,
+                        provider_error: data.error?.provider_error,
+                    },
+                ];
+            }
+            return data
+    } catch (error) {
+        console.error("Fetch error:", error);
+            return [{ error: "Error" }];
+    }
+    
+    // let data = JSON.parse(localStorage.getItem("parentAgentProfile"));
+    // console.log("parentData  function",data);
+}
+async function nylasAccountData(){
+    //  let data = JSON.parse(localStorage.getItem("nylasAccountData"));
+    // console.log("nylasAccountData  function",data);
+    // return data
+    try {
+        const payload = {
+        agentId: agentId
+    }
+        const response = await fetch("ALL REFERENCES REMOVED FOR SECURITY PURPOSES", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'bearer ' + token
+                },
+                body: JSON.stringify(payload)
+            })
+            const data = await response.json();
+            console.log("nylas api call data mail account ",data)
+            if (!response.ok) {
+                const { error } = data;
+                return [
+                    null,
+                    {
+                        type: error?.type,
+                        message: error?.message,
+                        code: response.status,
+                        provider_error: data.error?.provider_error,
+                    },
+                ];
+            }
+            return data.data ? data.data : {}
+    } catch (error) {
+        console.error("Fetch error:", error);
+            return [{ error: "Error" }];
+    }
+}
+
+        // function to initialize the scheduler
+        async function initializeScheduler() {
+            token = getToken()
+            agentId = getAgentid()
+            console.log("token value")
+            console.log("agentId",agentId);
+            let agentData = await parentData()
+            let nylasAgentData = await nylasAccountData()
+            console.log("nylasAgentData--",nylasAgentData);
+                const schedulerEditor = document.querySelector("nylas-scheduler-editor");
+                console.log("Scheduler Editor:", schedulerEditor);
+                // schedulerEditor.schedulerPreviewLink = `${window.location.origin}/?config_id={config.id}`;
+                let originUrl = "ALL REFERENCES REMOVED FOR SECURITY PURPOSES"
+                console.log("agentData--",agentData);
+                let nylasClientId =  agentData.nylasClientId
+                schedulerEditor.schedulerPreviewLink = `https://book.nylas.com/us/${nylasClientId}/{slug}`
+                let email = nylasAgentData?.email_address ? nylasAgentData?.email_address : nylasAgentData.email
+                const userCreds = {
+                email:  email,
+                grantId:  agentData?.nylas_grant_id,
+                provider: agentData?.provider
+            };
+             const   nylasApiRequest =  new CustomIdentityRequestWrapperProxy({
+                                            email: userCreds?.email,
+                                            grantId: userCreds?.grantId,
+                                            domain: "https://api.us.nylas.com/v3",
+                                            provider: userCreds?.provider,
+                                        });
+                schedulerEditor.nylasApiRequest = nylasApiRequest;
+
+                schedulerEditor.defaultSchedulerConfigState = {
+                    requiresSlug:true,
+                    selectedConfiguration: {
+                        requires_session_auth: false,
+                        scheduler: {},
+                    },
+                };
+                console.log("Scheduler successfully initialized");
+                const reportIssueElement = document.getElementById('report-issue');
+                if (reportIssueElement) {
+                reportIssueElement.style.display = "none";
+                } else {
+                console.error('Element with ID "report-issue" not found.');
+                }
+        }
+        // Call the initialization function
+        initializeScheduler();
+    </script>
+</body>
+
+</html>
