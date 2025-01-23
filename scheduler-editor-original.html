@@ -50,6 +50,8 @@
     <script type="module">
        import { defineCustomElement } from "https://cdn.jsdelivr.net/npm/@nylas/web-elements@latest/dist/cdn/nylas-scheduler-editor/nylas-scheduler-editor.es.js";
        defineCustomElement();
+       //Scheduler Editor wasn't defined so added the document.querySelector in order to locate and attach the schedulerEditor.
+       const schedulerEditor = document.querySelector('nylas-scheduler-editor');
        let token
        let agentId
     class CustomIdentityRequestWrapperProxy {
@@ -66,7 +68,8 @@
             console.log('Request args.body:', args.body);
             console.log('Request args.headers:', args.headers);
 
-            const response = await fetch("ALL REFERENCES REMOVED FOR SECURITY PURPOSES", {
+            //Updates the URL to my local environment as I believe your backend is causing the issue based on the response you shared.
+            const response = await fetch("http://localhost:5173/scheduler/api", {
                 method: "POST",
                 headers: {
                     ...args.headers,
@@ -203,13 +206,16 @@ async function nylasAccountData(){
 
         // function to initialize the scheduler
         async function initializeScheduler() {
-            token = getToken()
-            agentId = getAgentid()
-            console.log("token value")
-            console.log("agentId",agentId);
-            let agentData = await parentData()
-            let nylasAgentData = await nylasAccountData()
-            console.log("nylasAgentData--",nylasAgentData);
+            
+            //Removing the following as I am hard coding data due to not having access to your backend.
+            //token = getToken()
+            //agentId = getAgentid()
+            //console.log("token value")
+            //console.log("agentId",agentId);
+            //let agentData = await parentData()
+            //let nylasAgentData = await nylasAccountData()
+
+            /*console.log("nylasAgentData--",nylasAgentData);
                 const schedulerEditor = document.querySelector("nylas-scheduler-editor");
                 console.log("Scheduler Editor:", schedulerEditor);
                 // schedulerEditor.schedulerPreviewLink = `${window.location.origin}/?config_id={config.id}`;
@@ -222,13 +228,13 @@ async function nylasAccountData(){
                 email:  email,
                 grantId:  agentData?.nylas_grant_id,
                 provider: agentData?.provider
-            };
+            }; */
              const   nylasApiRequest =  new CustomIdentityRequestWrapperProxy({
-                                            email: userCreds?.email,
-                                            grantId: userCreds?.grantId,
-                                            domain: "https://api.us.nylas.com/v3",
-                                            provider: userCreds?.provider,
-                                        });
+                    email: "REDACTED",
+                    grantId: "REDACTED",
+                    domain: "https://api.us.nylas.com/v3",
+                    provider: "google",
+                });
                 schedulerEditor.nylasApiRequest = nylasApiRequest;
 
                 schedulerEditor.defaultSchedulerConfigState = {
